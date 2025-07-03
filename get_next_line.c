@@ -6,32 +6,49 @@
 /*   By: pbongiov <pbongiov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/11 17:42:57 by pbongiov          #+#    #+#             */
-/*   Updated: 2025/05/11 18:37:51 by pbongiov         ###   ########.fr       */
+/*   Updated: 2025/05/16 18:24:37 by pbongiov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char *get_next_line(int fd)
+char	*get_next_line(int fd)
 {
-    static char *str;
+	static char	s[BUFFER_SIZE + 1];
+	char		*line;
+	int			rd;
 
-    str = (char *)malloc(BUFFER_SIZE * sizeof(char));
-    while(*str != '\n')
-    {
-        read(fd, str,BUFFER_SIZE);
-        if (*str)
-        {
-            printf("%s", str);
-            str++;
-        }
-    }
-    return (NULL);
+	if (fd < 0)
+		return (NULL);
+	rd = 1;
+	line = NULL;
+	while (1)
+	{
+		if (*s == '\0')
+			rd = read(fd, s, BUFFER_SIZE);
+		if (rd < 0)
+			return (buffer_clear(s, 1), free(line), NULL);
+		if (rd == 0)
+			return (line);
+		line = ft_strjoin(line, s);
+		if (!line)
+			return (buffer_clear(s, 1), NULL);
+		buffer_clear(s, 0);
+		if (line && check_newline(line))
+			break ;
+	}
+	return (line);
 }
 
-int main(void)
+/* int	main(void)
 {
-    int fd = open("teste.txt", O_RDONLY);
-    get_next_line(fd);
-    return (0);
-}
+	char *s;
+	int fd = open("teste.txt", O_RDONLY);
+
+	s = get_next_line(fd);
+	free(s);
+	s = get_next_line(fd);
+	free(s);
+	s = get_next_line(fd);
+	free(s);
+} */
